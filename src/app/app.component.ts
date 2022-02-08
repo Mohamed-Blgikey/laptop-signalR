@@ -11,10 +11,12 @@ import * as signalR from '@aspnet/signalr'
 export class AppComponent implements OnInit{
   title = 'laptop-signalR';
 
+  editMood:boolean = false;
   imgPrefix:string = environment.photoUrl;
   laps :any [] =[];
   notify :any [] =[];
   postarName : string = '';
+  oldPostarName : string = '';
   /**
    *
    */
@@ -47,7 +49,8 @@ export class AppComponent implements OnInit{
 
 
     hubConnection.on("LaptopAction",()=>{
-      console.log("Done");
+      this.getLaptops();
+      this.getNotify();
     })
 
   }
@@ -92,11 +95,62 @@ export class AppComponent implements OnInit{
       poster : this.postarName
 
     }
-
-
     this._HttpService.AddLaptop(data).subscribe(res=>{
       console.log(res);
+      this.postarName = '';
+      this.lapForm.reset();
     })
+  }
+
+  deleteLap(lap:number,poster:string){
+    // console.log(lap);
+    // console.log(poster);
+    if (confirm("Delete Laptop !!")) {
+      this._HttpService.UnSavePhoto({name:poster}).subscribe(res=>{
+        // console.log(res);
+
+      })
+      this._HttpService.DeleteLaptop(lap).subscribe(res=>{
+        // console.log(res);
+
+      })
+    }
+  }
+
+
+  openEditMood(lap:any){
+    this.lapForm.controls['id'].setValue(lap.id)
+    this.lapForm.controls['name'].setValue(lap.name)
+    this.lapForm.controls['ram'].setValue(lap.ram)
+    this.lapForm.controls['storage'].setValue(lap.storage)
+    // this.lapForm.controls['storage'].setValue(lap.poster)
+    // console.log(lap);
+    this.oldPostarName = lap.poster;
+    this.editMood = true;
+
+  }
+  Edit(lapForm:FormGroup){
+    let data = {
+      id : lapForm.controls['id'].value,
+      name : lapForm.controls['name'].value,
+      ram : lapForm.controls['ram'].value,
+      storage : lapForm.controls['storage'].value,
+      poster : this.oldPostarName
+    }
+    if(this.postarName != ''){
+      data.poster = this.postarName;
+      this._HttpService.UnSavePhoto({name:this.oldPostarName}).subscribe(()=>{
+        this.oldPostarName = '';
+      })
+    }
+
+    this._HttpService.EditLaptop(data).subscribe(res=>{
+      // console.log(res);
+
+    })
+    lapForm.reset();
+    this.editMood = false;
+
   }
 
 
@@ -104,7 +158,8 @@ export class AppComponent implements OnInit{
     this._HttpService.GetLaptops().subscribe(res=>{
       // console.log(res);
       this.laps= res;
-      console.log(this.laps);
+      this.laps = this.laps.reverse();
+      // console.log(this.laps);
 
     })
   }
@@ -113,6 +168,8 @@ export class AppComponent implements OnInit{
     this._HttpService.GetNotificaions().subscribe(res=>{
       // console.log(res);
       this.notify = res
+      this.notify = this.notify.reverse();
     })
   }
 }
+

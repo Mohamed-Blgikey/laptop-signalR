@@ -35,7 +35,7 @@ export class HttpService {
   }
 
   DeleteLaptop(obj:any):Observable<any>{
-    return this.http.delete(environment.baseUrl + 'DeleteLaptop',obj).pipe(
+    return this.http.post(environment.baseUrl + 'DeleteLaptop',obj).pipe(
       catchError(this.handleError)
     );
   }
