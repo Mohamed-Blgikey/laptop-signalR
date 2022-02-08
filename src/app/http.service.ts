@@ -40,6 +40,19 @@ export class HttpService {
     );
   }
 
+
+  SavePhoto(obj:any):Observable<any>{
+    return this.http.post(environment.baseUrl + 'SavePhoto',obj).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  UnSavePhoto(obj:any):Observable<any>{
+    return this.http.post(environment.baseUrl + 'UnSavePhoto',obj).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(err:any) {
     let errorMessage: string;
     if (err.error instanceof ErrorEvent) {
